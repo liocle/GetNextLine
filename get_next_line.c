@@ -6,7 +6,7 @@
 /*   By: lclerc <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 10:26:47 by lclerc            #+#    #+#             */
-/*   Updated: 2023/01/12 10:23:10 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/01/12 18:08:55 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,23 +51,37 @@
 
 #include "get_next_line.h"
 
+static void	print_line(char *line_buffer, char bookmark)
+{
+	char	*
+	ft_strlcpy(		
+}
+
 char	*get_next_line(int fd)
 {
 	char		*buffer;
-	char		*line_buffer;
-	static char	*remaining;
+	static char	*line_buffer;
+	char		*bookmark;
 	size_t		read_bits;	
 
+	buffer = (char *)malloc(BUFFER_SIZE * sizeof(char) + 1);
+	line_buffer = (char *)malloc(1 * sizeof(char) + 1); 
 	if (read_bits = read(fd, buffer, BUFFER_SIZE) < 0)
 		return (NULL);
-	while (buffer != '\0' && read_bits >= 0)
+	while (read_bits > 0)
 	{
-		//TODO should I malloc BUFFER_SIZE used + remaining, or
-		//strlen(BUFFER_SIZE) + remaining?
-		line_buffer = (char *)malloc((BUFFER_SIZE + ft_strlen(remaining)) * \
+		line_buffer = (char *)malloc((BUFFER_SIZE + ft_strlen(line_buffer)) * \
 				sizeof(char) + 1);
-		*line_buffer++ = *buffer++;
+		ft_strjoin(line_buffer, buffer);
+		bookmark = ft_strchr(line_buffer, '\n';
+		if (bookmark != NULL && bookmark != '\0')
+		{
+			print_line(line_buffer);
+			trim_printed(line_buffer, bookmark);
+		}
 		read_bits = read(fd, buffer, BUFFER_SIZE)
 	}
+	free(line_buffer);
+	free(buffer);
 
 }
