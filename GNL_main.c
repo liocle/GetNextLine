@@ -6,25 +6,28 @@
 /*   By: lclerc <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 13:54:23 by lclerc            #+#    #+#             */
-/*   Updated: 2023/01/09 18:56:48 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/01/17 13:54:12 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fcntl.h>
+#include "get_next_line.h"
 
 int	main(void)
 {
 	int		fd;
-	char	*print_me;
+	char	*line;
 
 	fd = open(print_me, O_RDONLY);
+	if (fd = -1)
+		return (NULL);
 	while (1)
 	{
-		print_me = get_next_line(fd);
-		if (print_me == NULL)
-			return (-42);
-		printf("%s", print_me);
-		free (print_me);
+		line = get_next_line(fd);
+		printf("%s", line);
+		if (line == NULL)
+			break;
+		free (line);
 	}
 	return (0);
 }

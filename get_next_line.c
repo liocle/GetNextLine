@@ -6,7 +6,7 @@
 /*   By: lclerc <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 10:26:47 by lclerc            #+#    #+#             */
-/*   Updated: 2023/01/12 18:08:55 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/01/18 10:15:07 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,41 +47,48 @@
  * of the buffer containing the text into a *line_pointer. The buffer is
  * null-terminated and includes the newline character if present.
  *
+ * LIMITATIONS:
+ * BUF_SIZE must be at least 1.
+ * fd is limited to 1024 (or as defined by FD_SETSIZE) else it will result in
+ * undefined behaviour.
  */
 
 #include "get_next_line.h"
 
-static void	print_line(char *line_buffer, char bookmark)
-{
-	char	*
-	ft_strlcpy(		
-}
-
 char	*get_next_line(int fd)
 {
-	char		*buffer;
+	char		buffer[BUFFER_SIZE + 1];
 	static char	*line_buffer;
 	char		*bookmark;
-	size_t		read_bits;	
+	char		*new_line;
+	int			read_value;	
+	int			len;
 
-	buffer = (char *)malloc(BUFFER_SIZE * sizeof(char) + 1);
-	line_buffer = (char *)malloc(1 * sizeof(char) + 1); 
-	if (read_bits = read(fd, buffer, BUFFER_SIZE) < 0)
+	if(fd < 0 || BUFFER_SIZE <= 0 || fd > 1023)
 		return (NULL);
-	while (read_bits > 0)
+	read_value = BUFFER_SIZE;
+	line_buffer = NULL;
+	bookmark = NULL;
+	new_line = NULL;
+	while (read_value > 0)
 	{
-		line_buffer = (char *)malloc((BUFFER_SIZE + ft_strlen(line_buffer)) * \
-				sizeof(char) + 1);
-		ft_strjoin(line_buffer, buffer);
-		bookmark = ft_strchr(line_buffer, '\n';
-		if (bookmark != NULL && bookmark != '\0')
+		read_value = read(fd, buffer, BUFFER_SIZE);
+		buffer[read_value] = '\0';
+		line_buffer = ft_strjoin(bookmark, buffer);
+		bookmark = ft_strchr(line_buffer, '\n');
+		if (bookmark != NULL)
 		{
-			print_line(line_buffer);
-			trim_printed(line_buffer, bookmark);
+			new_line = (char *)malloc((bookmark - line_buffer) * sizeof(char) +1);
+			if (!new_line)
+				return (NULL);
+			ft_strlcpy(*new_line, *line_buffer, bookmark - line_buffer);
+			return (new_line);
 		}
-		read_bits = read(fd, buffer, BUFFER_SIZE)
 	}
-	free(line_buffer);
-	free(buffer);
+	if read_value 
+
+
+		
+
 
 }
