@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lclerc <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: lclerc <lclerc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 10:26:47 by lclerc            #+#    #+#             */
-/*   Updated: 2023/01/18 10:15:07 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/01/27 17:52:08 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,46 +49,146 @@
  *
  * LIMITATIONS:
  * BUF_SIZE must be at least 1.
- * fd is limited to 1024 (or as defined by FD_SETSIZE) else it will result in
+ * fd is limited to 1024 (or as defined by FD_SETIZE) else it will result in
  * undefined behaviour.
  */
 
 #include "get_next_line.h"
 
+/*
+ * stash_remain() is backing up the part of the buffer after the new line has
+ * been extracted. 
+ *
+ * If there is no new line, it is consequently the last string in the file. The 
+ * updated_buffer is freed and NULL is returned.
+ */
+
+static char	*stash_remain(char *buffer)
+{
+	int		index_buffer;
+	int		index_nextline;
+	char	*next_line;
+
+	index_buffer = 0;
+	while (buffer[index_buffer] && buffer[index_buffer] != '\n')
+		index_buffer++;
+	if (!buffer[index_buffer])
+	{
+		free(buffer);
+		return (NULL);
+	}
+	printf("buffer before strlen:%s:\n", buffer);
+	next_line = calloc((ft_strlen(buffer) - index_buffer + 1),
+			sizeof(char *));
+	if (!next_line)
+		return (NULL);
+	index_buffer++;
+	index_nextline = 0;
+	while (buffer[index_buffer])
+		next_line[index_nextline++] = buffer[index_buffer++];
+	free(buffer);
+	return (next_line);
+//	char	*updated_buffer;
+//	size_t	buffer_len;
+//	int		i;
+//	int		j;
+//
+//	i = 0;
+//	j = 0;
+//	buffer_len = ft_strlen(line_buffer);
+//	while(line_buffer[i] && line_buffer[i] != '\n')
+//		i++;
+//	if(!line_buffer[i])
+//	{
+//		free(line_buffer);
+//		return(NULL);
+//	}
+//	updated_buffer = malloc((buffer_len - i + 1) * sizeof(char));
+//	if (!updated_buffer)
+//		return (NULL);
+//	printf("linebuffer:%s:\n bufferlen :%zu:", line_buffer + i +1, buffer_len - i- 1);
+//	//ft_strlcpy(updated_buffer, line_buffer + i + 1, buffer_len - i - 1);
+//	i += 1;
+//	while (line_buffer[i])
+//	{
+//		updated_buffer[j++] = line_buffer[i++];
+//	}
+//	free(line_buffer);
+//	return (updated_buffer);
+}
+
+/*
+ * extract_line() is copying the first string in the line buffer to new_line
+ */
+
+static char	*extract_line(char *line_buffer)
+{
+	char	*new_line;
+	size_t	buffer_len;
+	size_t	i;
+
+	i = 0;
+	if (!line_buffer)
+		return NULL;
+	buffer_len = ft_strlen(line_buffer);
+	while (line_buffer[i] && line_buffer[i] != '\n')
+		i++;
+	if (buffer_len == i)
+		line_buffer[i] = '\n';
+	new_line = calloc(i + 2, sizeof(char));
+	if (!new_line)
+		return (NULL);
+	i = 0;
+	while (line_buffer[i] && line_buffer[i] != '\n')
+	{
+		new_line[i] = line_buffer[i];
+		i++;
+	}
+	if (line_buffer[i] && line_buffer[i] == '\n')
+		new_line[i++] = '\n';
+	return (new_line);
+}
+
+static char	*read_line(int fd, char *line_buffer)
+{
+	char		*buffer;
+	int			read_bytes;
+	char		*temp;
+
+	read_bytes = 1;
+	if (!line_buffer)
+		line_buffer = calloc(1,1);
+	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!buffer)
+		return (NULL);
+	while (read_bytes  > 0)
+	{
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
+		if (read_bytes == -1)
+			return (NULL);
+		buffer[read_bytes] = '\0';
+		//printf("buffer:%s:\n", buffer);
+		temp = ft_strjoin(line_buffer, buffer);
+		free(line_buffer);
+		line_buffer = temp;
+		if (ft_strchr(buffer, '\n'))
+			break;
+	}
+	free(buffer);
+	return(line_buffer);
+}
+
 char	*get_next_line(int fd)
 {
-	char		buffer[BUFFER_SIZE + 1];
 	static char	*line_buffer;
-	char		*bookmark;
 	char		*new_line;
-	int			read_value;	
-	int			len;
 
-	if(fd < 0 || BUFFER_SIZE <= 0 || fd > 1023)
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)
 		return (NULL);
-	read_value = BUFFER_SIZE;
-	line_buffer = NULL;
-	bookmark = NULL;
-	new_line = NULL;
-	while (read_value > 0)
-	{
-		read_value = read(fd, buffer, BUFFER_SIZE);
-		buffer[read_value] = '\0';
-		line_buffer = ft_strjoin(bookmark, buffer);
-		bookmark = ft_strchr(line_buffer, '\n');
-		if (bookmark != NULL)
-		{
-			new_line = (char *)malloc((bookmark - line_buffer) * sizeof(char) +1);
-			if (!new_line)
-				return (NULL);
-			ft_strlcpy(*new_line, *line_buffer, bookmark - line_buffer);
-			return (new_line);
-		}
-	}
-	if read_value 
-
-
-		
-
-
+	line_buffer = read_line(fd, line_buffer);
+	if(!line_buffer)
+		return (NULL);
+	new_line = extract_line(line_buffer);
+	line_buffer = stash_remain(line_buffer);
+	return (new_line);
 }
