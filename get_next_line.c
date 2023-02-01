@@ -6,7 +6,7 @@
 /*   By: lclerc <lclerc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 10:26:47 by lclerc            #+#    #+#             */
-/*   Updated: 2023/01/27 17:52:08 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/02/01 14:06:52 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,17 @@
 
 #include "get_next_line.h"
 
+static char *malloc_and_null_me(int size, int zeroed)
+{
+	char	*new_string;
+
+	new_string = (char *)malloc(size * sizeof(char));
+	if (!new_string)
+		return (NULL);
+	new_string[zeroed] = '\0';
+	return (new_string);
+}
+
 /*
  * stash_remain() is backing up the part of the buffer after the new line has
  * been extracted. 
@@ -63,58 +74,28 @@
  * updated_buffer is freed and NULL is returned.
  */
 
-static char	*stash_remain(char *buffer)
+static char	*stash_remain(char *line_buffer)
 {
-	int		index_buffer;
-	int		index_nextline;
-	char	*next_line;
+	char	*updated_buffer;
+	size_t	buffer_len;
+	int		i;
 
-	index_buffer = 0;
-	while (buffer[index_buffer] && buffer[index_buffer] != '\n')
-		index_buffer++;
-	if (!buffer[index_buffer])
+	i = 0;
+	buffer_len = ft_strlen(line_buffer);
+	while (line_buffer[i] && line_buffer[i] != '\n')
+		i++;
+	if (!line_buffer[i])
 	{
-		free(buffer);
+		free(line_buffer);
 		return (NULL);
 	}
-	printf("buffer before strlen:%s:\n", buffer);
-	next_line = calloc((ft_strlen(buffer) - index_buffer + 1),
-			sizeof(char *));
-	if (!next_line)
+	updated_buffer = malloc_and_null_me(buffer_len - i + 2, buffer_len - i);
+	if (!updated_buffer)
 		return (NULL);
-	index_buffer++;
-	index_nextline = 0;
-	while (buffer[index_buffer])
-		next_line[index_nextline++] = buffer[index_buffer++];
-	free(buffer);
-	return (next_line);
-//	char	*updated_buffer;
-//	size_t	buffer_len;
-//	int		i;
-//	int		j;
-//
-//	i = 0;
-//	j = 0;
-//	buffer_len = ft_strlen(line_buffer);
-//	while(line_buffer[i] && line_buffer[i] != '\n')
-//		i++;
-//	if(!line_buffer[i])
-//	{
-//		free(line_buffer);
-//		return(NULL);
-//	}
-//	updated_buffer = malloc((buffer_len - i + 1) * sizeof(char));
-//	if (!updated_buffer)
-//		return (NULL);
-//	printf("linebuffer:%s:\n bufferlen :%zu:", line_buffer + i +1, buffer_len - i- 1);
-//	//ft_strlcpy(updated_buffer, line_buffer + i + 1, buffer_len - i - 1);
-//	i += 1;
-//	while (line_buffer[i])
-//	{
-//		updated_buffer[j++] = line_buffer[i++];
-//	}
-//	free(line_buffer);
-//	return (updated_buffer);
+	updated_buffer[buffer_len - i + 1] = '\0';
+	ft_strlcpy(updated_buffer, line_buffer + i + 1, buffer_len - i + 1);
+	free(line_buffer);
+	return (updated_buffer);
 }
 
 /*
@@ -129,13 +110,13 @@ static char	*extract_line(char *line_buffer)
 
 	i = 0;
 	if (!line_buffer)
-		return NULL;
+		return (NULL);
 	buffer_len = ft_strlen(line_buffer);
 	while (line_buffer[i] && line_buffer[i] != '\n')
 		i++;
-	if (buffer_len == i)
-		line_buffer[i] = '\n';
-	new_line = calloc(i + 2, sizeof(char));
+	if (line_buffer[i] == '\n')
+		i++;
+	new_line = malloc_and_null_me(i + 1, i);
 	if (!new_line)
 		return (NULL);
 	i = 0;
@@ -157,25 +138,22 @@ static char	*read_line(int fd, char *line_buffer)
 
 	read_bytes = 1;
 	if (!line_buffer)
-		line_buffer = calloc(1,1);
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buffer)
-		return (NULL);
-	while (read_bytes  > 0)
+		line_buffer = malloc_and_null_me(1, 0);
+	buffer = malloc_and_null_me(BUFFER_SIZE + 1, BUFFER_SIZE);
+	while (read_bytes > 0)
 	{
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		if (read_bytes == -1)
 			return (NULL);
 		buffer[read_bytes] = '\0';
-		//printf("buffer:%s:\n", buffer);
 		temp = ft_strjoin(line_buffer, buffer);
 		free(line_buffer);
 		line_buffer = temp;
 		if (ft_strchr(buffer, '\n'))
-			break;
+			break ;
 	}
 	free(buffer);
-	return(line_buffer);
+	return (line_buffer);
 }
 
 char	*get_next_line(int fd)
@@ -186,7 +164,7 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)
 		return (NULL);
 	line_buffer = read_line(fd, line_buffer);
-	if(!line_buffer)
+	if (!line_buffer)
 		return (NULL);
 	new_line = extract_line(line_buffer);
 	line_buffer = stash_remain(line_buffer);
