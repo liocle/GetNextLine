@@ -6,7 +6,7 @@
 /*   By: lclerc <lclerc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 10:26:47 by lclerc            #+#    #+#             */
-/*   Updated: 2023/02/01 14:31:44 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/02/01 17:25:58 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@
  * undefined behaviour.
  */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*malloc_and_null_me(int size, int zeroed)
 {
@@ -160,15 +160,15 @@ static char	*read_line(int fd, char *line_buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*line_buffer;
+	static char	*line_buffer[OPEN_MAX];
 	char		*new_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)
 		return (NULL);
-	line_buffer = read_line(fd, line_buffer);
-	if (!line_buffer)
+	line_buffer[fd] = read_line(fd, line_buffer[fd]);
+	if (!line_buffer[fd])
 		return (NULL);
-	new_line = extract_line(line_buffer);
-	line_buffer = stash_remain(line_buffer);
+	new_line = extract_line(line_buffer[fd]);
+	line_buffer[fd] = stash_remain(line_buffer[fd]);
 	return (new_line);
 }
