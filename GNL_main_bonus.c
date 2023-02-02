@@ -6,7 +6,7 @@
 /*   By: lclerc <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/01 15:44:59 by lclerc            #+#    #+#             */
-/*   Updated: 2023/02/02 10:11:54 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/02/02 11:18:11 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,18 +27,20 @@ int	main(void)
 	i = 0;
 	while (i < 8304)
 	{
+		
 		printf("fd1\t%s\n", get_next_line(fd1));
 		printf("fd1\t%s\n", get_next_line(fd1));
 		printf("fd1\t%s\n", get_next_line(fd1));
 		printf("fd1\t%s\n", get_next_line(fd1));
-		printf("__________\n");
+		printf("          __________         __________         __________\n");
 		printf("fd2\t%s\n", get_next_line(fd2));
 		printf("fd2\t%s\n", get_next_line(fd2));
-		printf("__________\n");
+		printf("          __________         __________         __________\n");
 		printf("fd3\t%s\n", get_next_line(fd3));
 		printf("fd3\t%s\n", get_next_line(fd3));
 		printf("fd3\t%s\n", get_next_line(fd3));
-		printf("__________\n");
+		printf("fd3\t%s\n", get_next_line(fd3));
+		printf("          __________         __________         __________\n");
 		i++;	
 	}
 	return (0);
