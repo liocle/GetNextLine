@@ -6,7 +6,7 @@
 /*   By: lclerc <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 17:28:43 by lclerc            #+#    #+#             */
-/*   Updated: 2023/02/01 15:17:11 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/02/02 15:36:16 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,10 @@ size_t	ft_strlen(const char *s)
 	return (p - s);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2, size_t s2_len)
 {
 	char	*joined_string;
 	size_t	joined_string_length;
-	size_t	s2_len;
 
 	if (!s1 || !s2)
 		return (NULL);
@@ -50,11 +49,19 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	if (*s2 != '\0')
 		s2_len = ft_strlen(s2);
 	if (!ft_strlen(s1) && !s2_len)
+	{
+		free(s1);
+		free(s2);
 		return (NULL);
+	}
 	joined_string_length = ft_strlen(s1) + s2_len + 1;
 	joined_string = (char *)malloc(joined_string_length * sizeof(char) + 1);
 	if (joined_string == NULL)
+	{
+		free(s1);
+		free(s2);
 		return (NULL);
+	}
 	ft_strlcpy(joined_string, s1, joined_string_length);
 	ft_strlcat(joined_string, s2, joined_string_length);
 	return (joined_string);

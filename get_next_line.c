@@ -6,7 +6,7 @@
 /*   By: lclerc <lclerc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 10:26:47 by lclerc            #+#    #+#             */
-/*   Updated: 2023/02/01 14:31:44 by lclerc           ###   ########.fr       */
+/*   Updated: 2023/02/02 15:36:11 by lclerc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,17 +130,15 @@ static char	*extract_line(char *line_buffer)
 	return (new_line);
 }
 
-static char	*read_line(int fd, char *line_buffer)
+static char	*read_line(int fd, char *line_buffer, int read_bytes, size_t s2_len)
 {
 	char		*buffer;
-	int			read_bytes;
 	char		*temp;
 
-	read_bytes = 1;
 	if (!line_buffer)
 		line_buffer = malloc_and_null_me(1, 0);
 	buffer = malloc_and_null_me(BUFFER_SIZE + 1, BUFFER_SIZE);
-	if (!buffer)
+	if (!buffer || !line_buffer)
 		return (NULL);
 	while (read_bytes > 0)
 	{
@@ -148,7 +146,9 @@ static char	*read_line(int fd, char *line_buffer)
 		if (read_bytes == -1)
 			return (NULL);
 		buffer[read_bytes] = '\0';
-		temp = ft_strjoin(line_buffer, buffer);
+		temp = ft_strjoin(line_buffer, buffer, s2_len);
+		if (!temp)
+			return (NULL);
 		free(line_buffer);
 		line_buffer = temp;
 		if (ft_strchr(buffer, '\n'))
@@ -162,10 +162,14 @@ char	*get_next_line(int fd)
 {
 	static char	*line_buffer;
 	char		*new_line;
+	int			read_bytes;
+	size_t		s2_len;
 
+	s2_len = 0;
+	read_bytes = 1;
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)
 		return (NULL);
-	line_buffer = read_line(fd, line_buffer);
+	line_buffer = read_line(fd, line_buffer, read_bytes, s2_len);
 	if (!line_buffer)
 		return (NULL);
 	new_line = extract_line(line_buffer);
